@@ -1,5 +1,7 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
+
+//Create markup of imgs tabel
 const imgsMarkup = [...galleryItems].map(({preview, original, description}) => 
     `
     <li class="gallery__item">
@@ -18,6 +20,7 @@ const imgsMarkup = [...galleryItems].map(({preview, original, description}) =>
 const gallery = document.querySelector('.gallery');
 gallery.insertAdjacentHTML("afterbegin", imgsMarkup);
 
+//Initialize events
 gallery.addEventListener("click", eventHandler)
 
 function eventHandler(evt) {
@@ -29,6 +32,7 @@ function eventHandler(evt) {
     callModal(evt.target.dataset.source, evt.target.alt);
 }
 
+//Initialize lightbox
 function callModal(original, description){
     const instance = basicLightbox.create(
         `<img
@@ -36,19 +40,36 @@ function callModal(original, description){
         alt=${description}
         width="800" height="600"
         />
-    `);
-
+    `,
+    {
+        onShow: () => {
+            closeZoomedImg(instance);
+        },
+        onClose: (instance) => {
+            instance.element().removeEventListener("click", () => {
+                instance.close();
+            });
+            document.removeEventListener("keydown", checkInst);
+        }
+    });
     instance.show();
-    closeZoomedImg(instance); 
 }
 
-
-function closeZoomedImg(instance){
-   instance.element().addEventListener("click", () => {instance.close()});
+function closeZoomedImg(instance) {
+   instance.element().addEventListener("click", () => {
+        instance.close();
+    });
    
    document.addEventListener("keydown", (event) => {
         if (event.key === "Escape"){
             instance.close()};
         }
     )
+}
+
+function checkInst(instance) {
+    if (!(instance.visible())){
+        return;
+    }
+    instance.close();
 }
