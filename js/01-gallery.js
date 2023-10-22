@@ -1,6 +1,6 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
-
+let instanceModal = null;
 //Create markup of imgs tabel
 const imgsMarkup = [...galleryItems].map(({preview, original, description}) => 
     `
@@ -34,7 +34,7 @@ function eventHandler(evt) {
 
 //Initialize lightbox
 function callModal(original, description){
-    const instance = basicLightbox.create(
+    const modal = basicLightbox.create(
         `<img
         src=${original}
         alt=${description}
@@ -43,33 +43,18 @@ function callModal(original, description){
     `,
     {
         onShow: () => {
-            closeZoomedImg(instance);
+           document.addEventListener("keydown", closeEscPress);
         },
         onClose: (instance) => {
-            instance.element().removeEventListener("click", () => {
-                instance.close();
-            });
-            document.removeEventListener("keydown", checkInst);
+           document.removeEventListener("keydown", closeEscPress);
         }
     });
-    instance.show();
+    modal.show();
+    instanceModal = modal;
 }
 
-function closeZoomedImg(instance) {
-   instance.element().addEventListener("click", () => {
-        instance.close();
-    });
-   
-   document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape"){
-            instance.close()};
-        }
-    )
-}
-
-function checkInst(instance) {
-    if (!(instance.visible())){
-        return;
-    }
-    instance.close();
+function closeEscPress(event) {
+    if (event.key === "Escape" && instanceModal) {
+        instanceModal.close();
+    };
 }
